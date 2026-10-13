@@ -1,0 +1,53 @@
+{
+  "name": "knowledge-search-slack",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "verify:schema": "node scripts/verify-schema.mjs supabase/schema.sql",
+    "check:connections": "tsx scripts/check-connections.ts",
+    "seed:users": "tsx scripts/seed-test-users.ts",
+    "check:rls": "tsx scripts/check-rls.ts",
+    "ingest": "tsx scripts/ingest.ts",
+    "test:chunking": "tsx scripts/test-chunking.ts",
+    "check:recall": "tsx scripts/check-recall.ts",
+    "ask": "tsx scripts/ask.ts",
+    "check:answers": "tsx scripts/check-answers.ts",
+    "test:slack": "tsx scripts/test-slack-events.ts",
+    "register:user": "tsx scripts/register-user.ts",
+    "make:dummy": "tsx scripts/make-dummy-docs.ts",
+    "incoming": "tsx scripts/incoming.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@napi-rs/canvas": "^0.1.80",
+    "@supabase/supabase-js": "^2.117.3",
+    "js-tiktoken": "^1.0.21",
+    "mammoth": "^1.13.0",
+    "next": "16.4.0",
+    "openai": "^7.32.0",
+    "pdf-parse": "^2.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.9",
+    "@electric-sql/pglite-pgvector": "^0.0.10",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "csv-parse": "^7.0.3",
+    "docx": "^9.10.0",
+    "dotenv": "^18.0.7",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}

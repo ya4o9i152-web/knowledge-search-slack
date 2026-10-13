@@ -1,0 +1,29 @@
+# Slackアプリの設定。api.slack.com/apps →「Create New App」→「From a manifest」に貼り付ける。
+# request_url は、Vercelの本番URL。
+display_information:
+  name: knowledge
+  description: 過去の提案書・報告書を検索して要約します
+features:
+  app_home:
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: knowledge
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read   # チャンネルでのメンションを受け取る
+      - chat:write          # 回答を投稿する
+      - im:history          # DMの質問と、スレッドのやりとりを読む
+      - im:write            # メンションした人とのDMを開く
+settings:
+  event_subscriptions:
+    request_url: https://knowledge-search-slack.vercel.app/api/slack/events
+    bot_events:
+      - app_mention
+      - message.im
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
