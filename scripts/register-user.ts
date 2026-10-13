@@ -7,20 +7,20 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { DEPARTMENTS, isDepartment } from "../src/lib/departments";
+import { ACCESS_GROUPS } from "../src/lib/departments";
 import { createAdminClient } from "../src/lib/supabase-admin";
 
 async function main() {
   const [slackUserId, displayName, departmentArg = ""] = process.argv.slice(2);
   if (!slackUserId || !/^[UW][A-Z0-9]+$/.test(slackUserId) || !displayName) {
     console.error('使い方: npm run register:user -- <SlackユーザーID> "<表示名>" <部署をカンマ区切り>');
-    console.error(`部署: ${DEPARTMENTS.join(" / ")}`);
+    console.error(`部署・区分: ${ACCESS_GROUPS.join(" / ")}`);
     process.exit(1);
   }
   const departments = departmentArg.split(",").map((d) => d.trim()).filter(Boolean);
-  const unknown = departments.filter((d) => !isDepartment(d));
+  const unknown = departments.filter((d) => !ACCESS_GROUPS.includes(d));
   if (unknown.length > 0) {
-    console.error(`登録されていない部署です: ${unknown.join("・")}（${DEPARTMENTS.join(" / ")} から選んでください）`);
+    console.error(`登録されていない部署です: ${unknown.join("・")}（${ACCESS_GROUPS.join(" / ")} から選んでください）`);
     process.exit(1);
   }
 

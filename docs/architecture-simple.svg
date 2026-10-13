@@ -33,8 +33,8 @@
 
   <!-- ① 読み込む -->
   <rect x="150" y="242" width="600" height="92" rx="14" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
-  <text x="176" y="275" class="t">① 毎月、自動で読み込んで整理する</text>
-  <text x="176" y="302" class="b">SharePoint に追加された文書を毎月読み込み、章ごとに整理して保管します。</text>
+  <text x="176" y="275" class="t">① 毎日、自動で読み込んで整理する</text>
+  <text x="176" y="302" class="b">SharePoint に追加された文書を毎日読み込み、章ごとに整理して保管します。</text>
   <text x="176" y="322" class="b">文書ごとに「どの部署のものか」も記録します。</text>
 
   <path class="arrow" d="M450,334 L450,366"/>

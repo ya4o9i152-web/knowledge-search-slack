@@ -7,23 +7,23 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import Anthropic from "@anthropic-ai/sdk";
-import { DEPARTMENTS } from "../src/lib/departments";
+import { ACCESS_GROUPS } from "../src/lib/departments";
 import { EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, embedTexts } from "../src/lib/embeddings";
 import { createAdminClient } from "../src/lib/supabase-admin";
 
 type Check = { name: string; run: () => Promise<string> };
 
-const TABLES = ["documents", "document_chunks", "user_departments", "slack_users", "slack_events", "search_logs"];
+const TABLES = ["documents", "document_chunks", "user_departments", "slack_users", "slack_events", "search_logs", "ingest_exclusions"];
 
 const checks: Check[] = [
   {
-    name: "Supabase: departments（6部署）",
+    name: "Supabase: departments（6部署＋機密）",
     run: async () => {
       const { data, error } = await createAdminClient().from("departments").select("name");
       if (error) throw new Error(error.message);
       const names = data.map((d) => d.name as string);
-      const missing = DEPARTMENTS.filter((d) => !names.includes(d));
-      if (missing.length > 0 || names.length !== DEPARTMENTS.length) {
+      const missing = ACCESS_GROUPS.filter((d) => !names.includes(d));
+      if (missing.length > 0 || names.length !== ACCESS_GROUPS.length) {
         throw new Error(`部署が一致しません（DB: ${names.join("・")}）`);
       }
       return names.join("・");

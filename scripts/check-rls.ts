@@ -87,13 +87,17 @@ async function main() {
       report(sameSet(visible, user.departments), `${user.displayName}: 直接読める文書 = [${visible.join("・")}]`);
 
       // 2. 検索関数。検証用以外の文書が入っていても、他部署の行が1件でも返れば不合格
-      const { data: hits, error: rpcError } = await client.rpc("match_document_chunks", {
+      // 実際の検索と同じ関数（検索＋監査ログ）で確かめる
+      const { data: hits, error: rpcError } = await client.rpc("search_documents_logged", {
         query_embedding: TEST_VECTOR,
+        p_question: "【権限検証】check:rls",
+        p_slack_user_id: user.slackUserId,
+        p_channel: "cli",
         match_count: 20,
         match_threshold: -1,
       });
       if (rpcError) throw new Error(rpcError.message);
-      const hitDepartments = [...new Set((hits as { department: string }[]).map((h) => h.department))];
+      const hitDepartments = [...new Set((hits as { department: string | null }[]).map((h) => h.department).filter((d): d is string => d !== null))];
       const leaked = hitDepartments.filter((d) => !(user.departments as string[]).includes(d));
       report(leaked.length === 0, `${user.displayName}: 検索結果の部署 = [${hitDepartments.join("・")}]${leaked.length ? ` ← 他部署が漏れています: ${leaked.join("・")}` : ""}`);
 

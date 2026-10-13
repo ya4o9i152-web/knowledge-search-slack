@@ -70,6 +70,7 @@ export type Citation = { sectionTitle: string | null; pages: string };
 export type AnsweredDocument = {
   documentId: string;
   title: string;
+  filename: string;
   department: string;
   client: string | null;
   docYear: number | null;
@@ -119,6 +120,7 @@ export async function generateAnswer(question: string, documents: DocumentHit[],
     answered.push({
       documentId: doc.documentId,
       title: doc.title,
+      filename: doc.filename,
       department: doc.department,
       client: doc.client,
       docYear: doc.docYear,

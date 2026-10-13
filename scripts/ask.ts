@@ -19,7 +19,7 @@ async function main() {
     process.exit(1);
   }
   console.log(`質問者: ${user.displayName}\n質問: ${question}\n`);
-  const result = await answerQuestion(user.slackUserId, question);
+  const result = await answerQuestion(user.slackUserId, question, { channel: "cli" });
   console.log(formatResult(result));
   console.log(`\n（${(result.latencyMs / 1000).toFixed(1)}秒）`);
 }

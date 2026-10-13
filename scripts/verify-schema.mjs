@@ -4,7 +4,7 @@
 
 import { PGlite } from "@electric-sql/pglite";
 import { vector } from "@electric-sql/pglite-pgvector";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const schemaPath = process.argv[2];
 const db = new PGlite({ extensions: { vector } });
@@ -24,6 +24,11 @@ await db.exec(`
 `);
 
 await db.exec(readFileSync(schemaPath, "utf8"));
+// 追加のSQL（supabase/migrations/*.sql）を番号順に実行する。2回実行して、何度実行しても通ることも確かめる
+const migrationsDir = new URL("../supabase/migrations/", import.meta.url);
+const migrations = readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).sort();
+for (let round = 0; round < 2; round++) for (const file of migrations) await db.exec(readFileSync(new URL(file, migrationsDir), "utf8"));
+console.log(`追加のSQL ${migrations.length} 本を2回実行OK: ${migrations.join(", ")}`);
 const ver = await db.query(`select extversion from pg_extension where extname='vector'`);
 console.log("schema.sql 実行OK / pgvector", ver.rows[0].extversion);
 
@@ -48,7 +53,7 @@ const asUser = async (uid, sql, params = []) => {
   try { return await db.query(sql, params); } finally { await db.exec(`reset role; reset request.jwt.claim.sub;`); }
 };
 const results = [];
-const check = (name, ok, detail) => { results.push(ok); console.log(`${ok ? "PASS" : "FAIL"}  ${name}  →  ${detail}`); };
+const check = (name, ok, detail = "OK") => { results.push(ok); console.log(`${ok ? "PASS" : "FAIL"}  ${name}  →  ${detail}`); };
 const q = vec(4242);
 
 let r = await asUser(U.hr, `select department, count(*)::int c from documents group by 1`);
@@ -89,6 +94,51 @@ check("部署を変えた文書は人事ユーザーから見えなくなる", r
 let dup = "入ってしまった";
 try { await db.query(`insert into slack_events values ('Ev1')`); await db.query(`insert into slack_events values ('Ev1')`); } catch { dup = "拒否"; }
 check("同じSlackイベントIDの2回目は拒否（重複排除）", dup === "拒否", dup);
+
+// ---- 監査ログと完全削除（002_audit_governance.sql）----
+{
+  // 人事ユーザーとして、検索とログ記録を1回の呼び出しで行う
+  r = await asUser(U.hr, `select log_id, chunk_id, document_id, department from search_documents_logged($1::vector, '離職率の推移は？', 'UHR', 'slack', 5, -1)`, [q]);
+  const logId = r.rows[0].log_id;
+  const log = (await db.query(`select * from search_logs where id = $1`, [logId])).rows[0];
+  check("検索と同時に監査ログが書かれる（誰が・何を・どのチャンクを）", r.rows.length === 5 && log.user_id === U.hr && log.question === "離職率の推移は？" && log.retrieved_chunk_ids.length === 5 && log.status === "searched" && log.departments.join() === "人事", `チャンク${log.retrieved_chunk_ids.length}件 / 部署 ${log.departments} / ${log.status}`);
+  check("検索結果は自部署だけ（ログつきの検索でも閲覧制限が効く）", r.rows.every((x) => x.department === "人事"));
+
+  // 0件でも記録が残る
+  r = await asUser(U.none, `select log_id, chunk_id from search_documents_logged($1::vector, '何か', 'UNONE', 'slack', 5, -1)`, [q]);
+  const emptyLog = (await db.query(`select retrieved_chunk_ids, user_id from search_logs where id = $1`, [r.rows[0].log_id])).rows[0];
+  check("0件のときも監査ログが残る", r.rows.length === 1 && r.rows[0].chunk_id === null && emptyLog.retrieved_chunk_ids.length === 0 && emptyLog.user_id === U.none);
+
+  // 質問者の権限では、ログを読むことも直接書くこともできない
+  const attempts = [];
+  for (const [label, sql] of [
+    ["監査ログの読み取り", `select * from search_logs`],
+    ["監査ログへの直接の書き込み", `insert into search_logs (question, status) values ('x', 'answered')`],
+    ["文書の完全削除", `select delete_document_with_redaction('${log.retrieved_document_ids[0]}', 'x')`],
+  ]) { try { await asUser(U.hr, sql); attempts.push(`${label}:通ってしまった`); } catch { attempts.push(`${label}:拒否`); } }
+  check("質問者の権限では、監査ログの読み書きも文書の削除もできない", attempts.every((x) => x.endsWith("拒否")), attempts.join(" / "));
+
+  // 完全削除：文書とチャンクが消え、監査ログから参照が消え、取り込み除外に登録される
+  const targetDoc = log.retrieved_document_ids[0];
+  const targetPath = (await db.query(`select source_path from documents where id = $1`, [targetDoc])).rows[0].source_path;
+  const result = (await db.query(`select delete_document_with_redaction($1, 'テスト：誤って取り込んだ') as r`, [targetDoc])).rows[0].r;
+  const after = (await db.query(`select retrieved_chunk_ids, retrieved_document_ids, redacted_chunk_count, question from search_logs where id = $1`, [logId])).rows[0];
+  const gone = (await db.query(`select (select count(*)::int from documents where id = $1) d, (select count(*)::int from document_chunks where document_id = $1) c`, [targetDoc])).rows[0];
+  const excluded = (await db.query(`select reason, redacted_log_count from ingest_exclusions where source_path = $1`, [targetPath])).rows[0];
+  check("完全削除：文書とチャンクが消える", gone.d === 0 && gone.c === 0 && result.deleted_chunks === 1, JSON.stringify(result));
+  check("完全削除：監査ログから参照が消え、消した数が残る（質問の記録は残る）", after.retrieved_chunk_ids.length === 4 && !after.retrieved_document_ids.includes(targetDoc) && after.redacted_chunk_count === 1 && after.question === "離職率の推移は？", `残り${after.retrieved_chunk_ids.length}件 / 消した数 ${after.redacted_chunk_count}`);
+  check("完全削除：取り込み除外に登録される（再取り込みされない）", excluded?.reason === "テスト：誤って取り込んだ" && excluded.redacted_log_count >= 1, JSON.stringify(excluded));
+
+  // 機密扱い：department を「機密」に変えると、元の部署の人には見えなくなる
+  const before = (await asUser(U.hr, `select count(*)::int c from documents`)).rows[0].c;
+  const toRestrict = (await db.query(`select id from documents where department = '人事' limit 1`)).rows[0].id;
+  await db.query(`update documents set department = '機密' where id = $1`, [toRestrict]);
+  const afterCount = (await asUser(U.hr, `select count(*)::int c from documents`)).rows[0].c;
+  const chunkDept = (await db.query(`select department from document_chunks where document_id = $1`, [toRestrict])).rows[0].department;
+  await db.query(`insert into user_departments values ($1, '機密')`, [U.multi]);
+  const multiSees = (await asUser(U.multi, `select count(*)::int c from documents where department = '機密'`)).rows[0].c;
+  check("機密扱い：元の部署の人には見えなくなり、機密の区分に入っている人には見える", afterCount === before - 1 && chunkDept === "機密" && multiSees === 1, `人事ユーザー ${before}件 → ${afterCount}件 / チャンクの区分 ${chunkDept} / 機密の所属者 ${multiSees}件`);
+}
 
 // 要実測としていた懸念：HNSWを使うと部署の条件が後から適用され、件数が足りなくなるか
 await db.exec(`set role authenticated; set request.jwt.claim.sub = '${U.hr}'; set enable_seqscan = off;`);

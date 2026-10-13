@@ -43,6 +43,10 @@ async function main() {
     return clients.get(key)!;
   };
 
+  // 検索は監査ログに記録される（どこからの質問かは cli）
+  const search = async (key: string, question: string) =>
+    (await searchDocuments(await getClient(key), question, { question, slackUserId: TEST_USERS.find((u) => u.key === key)!.slackUserId, channel: "cli" })).documents;
+
   let failed = 0;
   let recallTotal = 0;
   let recallHit = 0;
@@ -52,8 +56,8 @@ async function main() {
     if (userKey) {
       // 正解文書（「case7-doc1 / case7-doc3 / case7-doc4」のような前方一致の表記も含む）
       const answers = q.正解文書.split("/").map((s) => s.trim());
-      const own = await searchDocuments(await getClient(userKey), q.質問);
-      const all = await searchDocuments(await getClient("all"), q.質問);
+      const own = await search(userKey, q.質問);
+      const all = await search("all", q.質問);
       const found = answers.filter((a) => own.some((d) => stem(d.filename).startsWith(a)));
       const ok = found.length === answers.length;
       recallTotal++;
@@ -66,11 +70,11 @@ async function main() {
       console.log(`     担当部署のユーザー: 上位${own.length}件に正解 ${found.length}/${answers.length} ／ 全部署のユーザーでの順位: ${ranks.join("・")}（1位の類似度 ${all[0]?.similarity.toFixed(3) ?? "-"}）`);
     } else if (q.種別.startsWith("該当なし")) {
       // 「該当なし」と答えられるかはClaudeの判断を含むため、ここでは類似度の参考値だけ出す
-      const all = await searchDocuments(await getClient("all"), q.質問);
+      const all = await search("all", q.質問);
       console.log(`ℹ️  Q${q.番号} ${q.質問}`);
       console.log(`     該当なしの質問。全部署のユーザーでの1位: ${all[0] ? `${stem(all[0].filename)}（類似度 ${all[0].similarity.toFixed(3)}）` : "0件"} ← 回答生成の実装後に「見つかりませんでした」を検証`);
     } else if (q.種別.startsWith("RLS")) {
-      const hr = await searchDocuments(await getClient("hr"), "クラウド移行でインフラ運用コストはどれだけ下がりましたか？");
+      const hr = await search("hr", "クラウド移行でインフラ運用コストはどれだけ下がりましたか？");
       const leaked = hr.filter((d) => d.department !== "人事");
       if (leaked.length > 0) failed++;
       console.log(`${leaked.length === 0 ? "✅" : "❌"} Q${q.番号} ${q.質問}`);

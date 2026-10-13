@@ -2,13 +2,14 @@ import { getDocumentSource } from "@/lib/document-source";
 import { runScheduledIngest, summarizeReport } from "@/lib/scheduled-ingest";
 import { slackApi } from "@/lib/slack";
 
-// Vercelの関数の実行時間の上限（秒）。月50〜100件の追加を1回で処理する想定
+// Vercelの関数の実行時間の上限（秒）。月50〜100件の追加なので、1日あたりは数件の想定
 export const maxDuration = 300;
 // 上限の手前で新しい文書の処理を始めるのをやめ、残りは次回に回す
 const DEADLINE_MS = 240_000;
 
 /**
- * 月次取り込み。Vercel Cron（vercel.json）が毎月1日に呼び出す。
+ * 定期取り込み。Vercel Cron（vercel.json）が毎日 午前2時（日本時間）に呼び出す。
+ * 前回失敗した文書はDBに入っていないので、毎日の実行で自動的にもう一度試される。
  * Vercel Cron は、環境変数 CRON_SECRET があると `Authorization: Bearer <CRON_SECRET>` を付けて呼び出すので、
  * それ以外からの呼び出しは拒否する。
  */

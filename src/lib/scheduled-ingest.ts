@@ -6,6 +6,8 @@ export type ScheduledIngestReport = {
   /** 取り込み元にあったPDF・Wordの数 */
   found: number;
   alreadyIngested: number;
+  /** 完全削除した文書として読み飛ばした件数 */
+  excluded: number;
   ingested: { file: string; department: string; chunkCount: number; warnings: string[] }[];
   failed: { file: string; error: string }[];
   /** 制限時間に達して、今回は処理しなかった件数（次回の実行で続きから処理される） */
@@ -26,6 +28,13 @@ async function ingestedSourcePaths(): Promise<Set<string>> {
   return paths;
 }
 
+/** 完全削除した文書の source_path。取り込み元にファイルが残っていても、二度と取り込まない */
+async function excludedSourcePaths(): Promise<Set<string>> {
+  const { data, error } = await createAdminClient().from("ingest_exclusions").select("source_path");
+  if (error) throw new Error(`取り込み除外の確認に失敗: ${error.message}`);
+  return new Set(data.map((row) => row.source_path as string));
+}
+
 /**
  * 定期取り込みの本体。取り込み元にあって、まだDBに無い文書だけを取り込む（追加のみ）。
  *
@@ -37,11 +46,14 @@ export async function runScheduledIngest(source: DocumentSource, options: { dead
   const startedAt = Date.now();
   const files = await source.list();
   const ingestedPaths = await ingestedSourcePaths();
-  const pending: SourceFile[] = files.filter((file) => !ingestedPaths.has(file.sourcePath));
+  const excludedPaths = await excludedSourcePaths();
+  const candidates = files.filter((file) => !excludedPaths.has(file.sourcePath));
+  const pending: SourceFile[] = candidates.filter((file) => !ingestedPaths.has(file.sourcePath));
 
   const report: ScheduledIngestReport = {
     found: files.length,
-    alreadyIngested: files.length - pending.length,
+    alreadyIngested: candidates.length - pending.length,
+    excluded: files.length - candidates.length,
     ingested: [],
     failed: [],
     remaining: 0,

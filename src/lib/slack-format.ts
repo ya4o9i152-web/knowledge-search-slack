@@ -55,7 +55,7 @@ export function resultMessage(result: PipelineResult, question?: string): SlackM
         },
       ],
     });
-    blocks.push({ type: "context", elements: [{ type: "mrkdwn", text: `出典：${citations}` }] });
+    blocks.push({ type: "context", elements: [{ type: "mrkdwn", text: `出典：${escapeSlack(doc.filename)} ／ ${citations}` }] });
   });
   blocks.push({
     type: "context",

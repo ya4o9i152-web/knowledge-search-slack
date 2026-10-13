@@ -50,7 +50,7 @@
 
   <rect x="240" y="410" width="220" height="100" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
   <text x="350" y="435" class="t" text-anchor="middle">/api/cron/ingest</text>
-  <text x="256" y="458" class="b">・Vercel Cron（月1回）</text>
+  <text x="256" y="458" class="b">・Vercel Cron（毎日 午前2時）</text>
   <text x="256" y="477" class="b">・Graph API で新規分を取得</text>
   <text x="256" y="496" class="b">・追加のみ（差し替えは Phase2）</text>
 
@@ -115,7 +115,7 @@
     <text x="1025" y="475" class="s">部署・客先・年 ／ Slack ID の対応</text>
 
     <rect x="1015" y="496" width="200" height="34" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
-    <text x="1025" y="517" class="b"><tspan font-weight="700">search_logs</tspan>　検索の記録</text>
+    <text x="1025" y="517" class="b"><tspan font-weight="700">search_logs</tspan>　監査ログ</text>
   </g>
 
   <!-- 矢印：Slack ⇔ 受信 -->
@@ -188,7 +188,7 @@
     <line x1="130" y1="0" x2="166" y2="0" class="acl"/>
     <text x="174" y="4" class="lbl">部署で絞った検索（RLS 適用）</text>
     <line x1="350" y1="0" x2="386" y2="0" class="ingest"/>
-    <text x="394" y="4" class="lbl">取り込み（月1回）</text>
+    <text x="394" y="4" class="lbl">取り込み（毎日）</text>
     <text x="1200" y="4" class="s" text-anchor="end">料金は契約前に公式ページで確認</text>
   </g>
 </svg>

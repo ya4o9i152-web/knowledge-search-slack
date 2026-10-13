@@ -19,7 +19,8 @@
     "test:slack": "tsx scripts/test-slack-events.ts",
     "register:user": "tsx scripts/register-user.ts",
     "make:dummy": "tsx scripts/make-dummy-docs.ts",
-    "incoming": "tsx scripts/incoming.ts"
+    "incoming": "tsx scripts/incoming.ts",
+    "admin": "tsx scripts/admin.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",

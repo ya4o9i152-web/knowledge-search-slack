@@ -69,7 +69,7 @@ async function main() {
       question = "クラウド移行でインフラ運用コストはどれだけ下がりましたか？";
     }
 
-    const result = await answerQuestion(slackIdOf(userKey), question);
+    const result = await answerQuestion(slackIdOf(userKey), question, { channel: "cli" });
     latencies.push(result.latencyMs);
     const text = formatResult(result);
     if (result.latencyMs > LATENCY_LIMIT_MS) problems.push(`応答に${(result.latencyMs / 1000).toFixed(1)}秒かかった`);
