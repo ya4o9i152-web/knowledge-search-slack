@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 850" width="1260" height="850" font-family="'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif">
+  <defs>
+    <marker id="a-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <marker id="a-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+    <marker id="a-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/></marker>
+    <style>
+      .t{font-size:15px;font-weight:700;fill:#0f172a}
+      .b{font-size:12px;fill:#334155}
+      .s{font-size:11px;fill:#64748b}
+      .lane{font-size:13px;font-weight:700;fill:#64748b}
+      .lbl{font-size:11px;fill:#475569}
+      .flow{stroke:#475569;stroke-width:1.8;fill:none;marker-end:url(#a-gray)}
+      .acl{stroke:#dc2626;stroke-width:2.4;fill:none;marker-end:url(#a-red)}
+      .ingest{stroke:#ea580c;stroke-width:1.8;fill:none;stroke-dasharray:6 4;marker-end:url(#a-orange)}
+    </style>
+  </defs>
+
+  <rect width="1260" height="850" fill="#ffffff"/>
+
+  <!-- タイトル -->
+  <text x="30" y="40" font-size="22" font-weight="700" fill="#0f172a">ナレッジ検索AI（Slack連携） 構成図（MVP）</text>
+  <text x="30" y="64" class="b">常時稼働サーバーなし（Slack イベント ＋ サーバーレス関数）／ PDF＋Word 4,500件 ／ 6部署・100名 ／ 月額 約6万円</text>
+
+  <!-- レーン見出し -->
+  <text x="115" y="100" class="lane" text-anchor="middle">① 入口</text>
+  <text x="350" y="100" class="lane" text-anchor="middle">② 受信（Vercel 関数）</text>
+  <text x="615" y="100" class="lane" text-anchor="middle">③ 処理（Vercel）</text>
+  <text x="865" y="100" class="lane" text-anchor="middle">④ 外部AI</text>
+  <text x="1115" y="100" class="lane" text-anchor="middle">⑤ 保存・検索（Supabase）</text>
+  <line x1="30" y1="108" x2="1230" y2="108" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- ① 入口 -->
+  <rect x="30" y="125" width="170" height="100" rx="10" fill="#fdf4ff" stroke="#a21caf" stroke-width="1.5"/>
+  <text x="115" y="158" class="t" text-anchor="middle">Slack</text>
+  <text x="115" y="181" class="b" text-anchor="middle">社員 100名・6部署</text>
+  <text x="115" y="201" class="s" text-anchor="middle">メンション ＋ DM で質問</text>
+
+  <rect x="30" y="410" width="170" height="100" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="115" y="437" class="t" text-anchor="middle">SharePoint</text>
+  <text x="115" y="459" class="b" text-anchor="middle">PDF 3,000・Word 1,500</text>
+  <text x="115" y="478" class="b" text-anchor="middle">月 50〜100件 追加</text>
+  <text x="115" y="497" class="s" text-anchor="middle">PowerPoint 500 は Phase2</text>
+
+  <!-- ② 受信 -->
+  <rect x="240" y="125" width="220" height="100" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+  <text x="350" y="150" class="t" text-anchor="middle">/api/slack/events</text>
+  <text x="256" y="173" class="b">・Slack 署名を検証</text>
+  <text x="256" y="192" class="b">・3秒以内に 200 応答（同期）</text>
+  <text x="256" y="211" class="b">・イベントIDで重複を排除</text>
+
+  <rect x="240" y="410" width="220" height="100" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="350" y="435" class="t" text-anchor="middle">/api/cron/ingest</text>
+  <text x="256" y="458" class="b">・Vercel Cron（月1回）</text>
+  <text x="256" y="477" class="b">・Graph API で新規分を取得</text>
+  <text x="256" y="496" class="b">・追加のみ（差し替えは Phase2）</text>
+
+  <!-- ③ 処理 -->
+  <rect x="500" y="125" width="230" height="175" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+  <text x="615" y="150" class="t" text-anchor="middle">検索処理（非同期）</text>
+  <text x="516" y="173" class="b">1. Slack ID → 所属部署を取得</text>
+  <text x="516" y="192" class="b">2. 本人の短命トークンを発行</text>
+  <text x="516" y="211" class="b">3. 質問を Embedding</text>
+  <text x="516" y="230" class="b">4. 部署で絞って上位5件を検索</text>
+  <text x="516" y="249" class="b">5. Claude で文書ごとに要約</text>
+  <text x="516" y="268" class="b">6. 出典つきで Slack に返信</text>
+  <text x="516" y="288" class="s">受付応答のあと after() で実行</text>
+
+  <rect x="500" y="385" width="230" height="150" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="615" y="410" class="t" text-anchor="middle">取り込み処理</text>
+  <text x="516" y="433" class="b">1. テキスト抽出（PDF / Word）</text>
+  <text x="516" y="452" class="b">2. セクション単位で分割</text>
+  <text x="516" y="471" class="b">3. メタデータ抽出（部署・客先）</text>
+  <text x="516" y="490" class="b">4. 文脈を付けて Embedding</text>
+  <text x="516" y="509" class="b">5. document_chunks に保存</text>
+  <text x="516" y="526" class="s">見出しで分割、長い節は段落で再分割</text>
+
+  <!-- ④ 外部AI -->
+  <rect x="770" y="125" width="190" height="95" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="865" y="150" class="t" text-anchor="middle">Claude API</text>
+  <text x="784" y="172" class="b">claude-opus-5-5</text>
+  <text x="784" y="191" class="b">文書ごとの要約を生成</text>
+  <text x="784" y="209" class="s">情シス確認済み</text>
+
+  <rect x="770" y="300" width="190" height="100" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="865" y="325" class="t" text-anchor="middle">OpenAI Embeddings</text>
+  <text x="784" y="347" class="b">text-embedding-3-large</text>
+  <text x="784" y="366" class="b">1536次元に短縮して保存</text>
+  <text x="784" y="387" font-size="11" font-weight="700" fill="#dc2626">※ 情シスへ追加確認が必要</text>
+
+  <!-- ⑤ 保存・検索 -->
+  <rect x="1000" y="125" width="230" height="420" rx="10" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+  <text x="1115" y="150" class="t" text-anchor="middle">東京リージョン・pgvector</text>
+  <g>
+    <rect x="1015" y="162" width="200" height="76" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
+    <text x="1025" y="181" class="b" font-weight="700">document_chunks</text>
+    <text x="1025" y="199" class="s">約15万件：本文・ベクトル・部署</text>
+    <text x="1025" y="215" class="s">文書名・セクション・ページ</text>
+    <text x="1025" y="231" class="s">HNSW インデックス</text>
+
+    <rect x="1015" y="246" width="200" height="50" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
+    <text x="1025" y="265" class="b" font-weight="700">match_document_chunks()</text>
+    <text x="1025" y="283" class="s">部署で絞る・反復スキャン有効</text>
+
+    <rect x="1015" y="304" width="200" height="68" rx="5" fill="#fef2f2" stroke="#fca5a5"/>
+    <text x="1025" y="323" class="b" font-weight="700" fill="#b91c1c">RLS（行単位の閲覧制限）</text>
+    <text x="1025" y="342" class="s">所属部署の行だけ読める</text>
+    <text x="1025" y="359" class="s">サービスロールでは検索しない</text>
+
+    <rect x="1015" y="380" width="200" height="50" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
+    <text x="1025" y="399" class="b" font-weight="700">user_departments</text>
+    <text x="1025" y="417" class="s">ユーザー ⇔ 部署（多対多）</text>
+
+    <rect x="1015" y="438" width="200" height="50" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
+    <text x="1025" y="457" class="b" font-weight="700">documents / slack_users</text>
+    <text x="1025" y="475" class="s">部署・客先・年 ／ Slack ID の対応</text>
+
+    <rect x="1015" y="496" width="200" height="34" rx="5" fill="#ffffff" stroke="#bbf7d0"/>
+    <text x="1025" y="517" class="b"><tspan font-weight="700">search_logs</tspan>　検索の記録</text>
+  </g>
+
+  <!-- 矢印：Slack ⇔ 受信 -->
+  <path class="flow" d="M200,160 L238,160"/>
+  <path class="flow" d="M240,195 L202,195"/>
+
+  <!-- 受信 → 検索処理 -->
+  <path class="flow" d="M460,165 L498,165"/>
+
+  <!-- 検索処理 → Slack（回答） -->
+  <path class="flow" d="M500,275 L115,275 L115,227"/>
+  <text x="308" y="267" class="lbl" text-anchor="middle">回答：DM は返信 ／ メンションは本人だけに表示</text>
+
+  <!-- 検索処理 → Claude / OpenAI -->
+  <path class="flow" d="M730,165 L768,165"/>
+  <path class="flow" d="M730,285 L750,285 L750,330 L768,330"/>
+
+  <!-- 検索処理 → Supabase（部署で絞った検索） -->
+  <path class="acl" d="M730,258 L998,258"/>
+  <text x="865" y="249" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">本人のトークンで検索（RLS 適用）</text>
+
+  <!-- 取り込み -->
+  <path class="ingest" d="M200,460 L238,460"/>
+  <path class="ingest" d="M460,460 L498,460"/>
+  <path class="ingest" d="M730,410 L750,410 L750,370 L768,370"/>
+  <path class="ingest" d="M730,470 L998,470"/>
+  <text x="865" y="462" class="lbl" fill="#c2410c" text-anchor="middle">チャンク＋メタデータを保存</text>
+
+  <!-- 下段：合格基準 / Phase2 -->
+  <rect x="30" y="590" width="370" height="145" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="46" y="617" class="t">合格基準（テスト質問 12問）</text>
+  <text x="46" y="642" class="b">・Recall@5：質問1〜8 で正解が上位5件（8/8）</text>
+  <text x="46" y="661" class="b">・横断検索：正解2文書がどちらも上位5件</text>
+  <text x="46" y="680" class="b">・該当なし：捏造 0件（2問）</text>
+  <text x="46" y="699" class="b">・権限：他部署の文書 0件（DB直読みも 0行）</text>
+  <text x="46" y="720" class="s">受付応答 3秒以内・回答の投稿まで 60秒以内・二重処理 0件</text>
+
+  <rect x="430" y="590" width="800" height="145" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="446" y="617" class="t" fill="#64748b">Phase2（今回は作らない・点線）</text>
+  <g>
+    <rect x="446" y="634" width="184" height="84" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="5 4"/>
+    <text x="458" y="656" class="b" font-weight="700">1. PowerPoint 対応</text>
+    <text x="458" y="678" class="s">テキスト抽出 ＋ 画像OCR</text>
+    <text x="458" y="696" class="s">500件（全体の1割）</text>
+
+    <rect x="642" y="634" width="184" height="84" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="5 4"/>
+    <text x="654" y="656" class="b" font-weight="700">2. 役職階層別の</text>
+    <text x="654" y="674" class="b" font-weight="700">　アクセス制御</text>
+    <text x="654" y="696" class="s">部署内の機密文書を守る</text>
+
+    <rect x="838" y="634" width="184" height="84" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="5 4"/>
+    <text x="850" y="656" class="b" font-weight="700">3. BM25 ハイブリッド</text>
+    <text x="850" y="674" class="b" font-weight="700">　検索</text>
+    <text x="850" y="696" class="s">キーワード一致で精度向上</text>
+
+    <rect x="1034" y="634" width="184" height="84" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="5 4"/>
+    <text x="1046" y="656" class="b" font-weight="700">4. 提案書ドラフト</text>
+    <text x="1046" y="674" class="b" font-weight="700">　自動生成</text>
+    <text x="1046" y="696" class="s">過去文書をもとに下書き</text>
+  </g>
+
+  <!-- 月額 -->
+  <rect x="30" y="755" width="1200" height="40" rx="8" fill="#f1f5f9"/>
+  <text x="46" y="780" class="b"><tspan font-weight="700">月額の見込み：</tspan>Claude API 約45,000円 ／ Supabase 約11,000円 ／ Vercel 約3,000円 ／ Embedding 100円未満 → <tspan font-weight="700">合計 約6万円</tspan>（予算 8万円以内・月6,000回の検索を仮定）</text>
+
+  <!-- 凡例 -->
+  <g transform="translate(30,822)">
+    <line x1="0" y1="0" x2="36" y2="0" class="flow"/>
+    <text x="44" y="4" class="lbl">検索の流れ</text>
+    <line x1="130" y1="0" x2="166" y2="0" class="acl"/>
+    <text x="174" y="4" class="lbl">部署で絞った検索（RLS 適用）</text>
+    <line x1="350" y1="0" x2="386" y2="0" class="ingest"/>
+    <text x="394" y="4" class="lbl">取り込み（月1回）</text>
+    <text x="1200" y="4" class="s" text-anchor="end">料金は契約前に公式ページで確認</text>
+  </g>
+</svg>

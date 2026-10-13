@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1190" width="900" height="1190" font-family="'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+    <style>
+      .h{font-size:18px;font-weight:700;fill:#0f172a}
+      .t{font-size:16px;font-weight:700;fill:#0f172a}
+      .b{font-size:14px;fill:#334155}
+      .s{font-size:12px;fill:#64748b}
+      .arrow{stroke:#64748b;stroke-width:3;fill:none;marker-end:url(#g)}
+    </style>
+  </defs>
+  <rect width="900" height="1190" fill="#ffffff"/>
+
+  <!-- タイトル -->
+  <text x="450" y="44" font-size="24" font-weight="700" fill="#0f172a" text-anchor="middle">ナレッジ検索AI のしくみ</text>
+  <text x="450" y="74" class="b" text-anchor="middle">Slack で質問すると、過去の提案書・報告書から関連する文書を見つけて要約します</text>
+
+  <!-- 文書 -->
+  <rect x="60" y="105" width="220" height="85" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="170" y="140" class="h" text-anchor="middle">📄 PDF</text>
+  <text x="170" y="167" class="b" text-anchor="middle">3,000件</text>
+
+  <rect x="340" y="105" width="220" height="85" rx="14" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="450" y="140" class="h" text-anchor="middle">📝 Word</text>
+  <text x="450" y="167" class="b" text-anchor="middle">1,500件</text>
+
+  <rect x="620" y="105" width="220" height="85" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="730" y="140" class="h" text-anchor="middle" fill="#94a3b8">📊 PowerPoint</text>
+  <text x="730" y="167" class="s" text-anchor="middle">500件・次の段階で対応予定</text>
+
+  <path d="M170,190 L170,212 L450,212" stroke="#64748b" stroke-width="3" fill="none"/>
+  <path class="arrow" d="M450,190 L450,236"/>
+
+  <!-- ① 読み込む -->
+  <rect x="150" y="242" width="600" height="92" rx="14" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="176" y="275" class="t">① 毎月、自動で読み込んで整理する</text>
+  <text x="176" y="302" class="b">SharePoint に追加された文書を毎月読み込み、章ごとに整理して保管します。</text>
+  <text x="176" y="322" class="b">文書ごとに「どの部署のものか」も記録します。</text>
+
+  <path class="arrow" d="M450,334 L450,366"/>
+
+  <!-- ② 質問する -->
+  <rect x="150" y="372" width="600" height="112" rx="14" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="176" y="405" class="t">② Slack で質問する</text>
+  <rect x="176" y="418" width="400" height="32" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="194" y="439" class="b">💬 製造業向けの DX 提案の過去事例は？</text>
+  <text x="176" y="470" class="s">ボットへのメンション、または個人宛てのメッセージで質問できます。</text>
+
+  <path class="arrow" d="M450,484 L450,516"/>
+
+  <!-- ③ 探す -->
+  <rect x="150" y="522" width="600" height="150" rx="14" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="176" y="555" class="t">③ AI が、所属部署の文書だけを探す</text>
+  <g font-size="14" text-anchor="middle">
+    <rect x="176" y="570" width="84" height="34" rx="17" fill="#ffffff" stroke="#ddd6fe"/><text x="218" y="592" fill="#94a3b8">戦略</text>
+    <rect x="268" y="570" width="84" height="34" rx="17" fill="#ffffff" stroke="#ddd6fe"/><text x="310" y="592" fill="#94a3b8">業務</text>
+    <rect x="360" y="570" width="84" height="34" rx="17" fill="#ffffff" stroke="#ddd6fe"/><text x="402" y="592" fill="#94a3b8">IT</text>
+    <rect x="452" y="570" width="84" height="34" rx="17" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="494" y="592" font-weight="700" fill="#5b21b6">人事</text>
+    <rect x="544" y="570" width="84" height="34" rx="17" fill="#ffffff" stroke="#ddd6fe"/><text x="586" y="592" fill="#94a3b8">営業</text>
+    <rect x="636" y="570" width="84" height="34" rx="17" fill="#ffffff" stroke="#ddd6fe"/><text x="678" y="592" fill="#94a3b8">管理</text>
+  </g>
+  <text x="176" y="632" class="b">たとえば人事部の方が質問すると、人事部の文書だけが検索されます。</text>
+  <text x="176" y="654" class="s">他部署の文書は、存在も含めて表示されません。兼務の方は、所属するすべての部署が対象です。</text>
+
+  <path class="arrow" d="M275,672 L275,704"/>
+
+  <!-- ④ 届く -->
+  <rect x="60" y="710" width="430" height="205" rx="14" fill="#fdf4ff" stroke="#a21caf" stroke-width="2"/>
+  <text x="86" y="743" class="t">④ 要点をまとめて Slack に届く</text>
+  <g class="b">
+    <rect x="86" y="758" width="378" height="28" rx="6" fill="#ffffff" stroke="#f0abfc"/>
+    <text x="98" y="777">関連する文書</text><text x="452" y="777" text-anchor="end" class="s">最大5件</text>
+    <rect x="86" y="792" width="378" height="28" rx="6" fill="#ffffff" stroke="#f0abfc"/>
+    <text x="98" y="811">文書ごとの要点</text><text x="452" y="811" text-anchor="end" class="s">AI が要約</text>
+    <rect x="86" y="826" width="378" height="28" rx="6" fill="#ffffff" stroke="#f0abfc"/>
+    <text x="98" y="845">どこに書いてあるか</text><text x="452" y="845" text-anchor="end" class="s">文書名・章・ページ</text>
+    <rect x="86" y="860" width="378" height="28" rx="6" fill="#ffffff" stroke="#f0abfc"/>
+    <text x="98" y="879">原本を開くリンク</text>
+  </g>
+  <text x="86" y="904" class="s">回答は、質問したご本人にだけ表示されます</text>
+
+  <!-- 探す時間 -->
+  <rect x="520" y="710" width="320" height="205" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="546" y="743" class="t">⏱ 探す時間の目安</text>
+  <text x="680" y="775" class="b" text-anchor="middle">これまで：1回 30分以上</text>
+  <text x="680" y="836" font-size="44" font-weight="700" fill="#1d4ed8" text-anchor="middle">1分以内</text>
+  <text x="680" y="868" class="s" text-anchor="middle">に、候補と要点が届きます（目標）</text>
+  <text x="680" y="890" class="s" text-anchor="middle">原本の確認を含めても数分です</text>
+
+  <!-- 閲覧制限 -->
+  <rect x="60" y="940" width="780" height="100" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="86" y="973" class="t">🔒 見てはいけない文書が出ないしくみ</text>
+  <text x="86" y="1000" class="b">検索のしくみとデータベースの両方で、二重に制限をかけます。</text>
+  <text x="86" y="1022" class="b">該当する文書がないときは、推測で答えず「見つかりませんでした」とお返しします。</text>
+
+  <!-- 準備 / 費用 -->
+  <rect x="60" y="1060" width="380" height="88" rx="14" fill="#f1f5f9"/>
+  <text x="86" y="1091" class="t">👤 ご準備いただくこと</text>
+  <text x="86" y="1115" class="b">SharePoint の読み取り設定／Slack へのアプリ追加</text>
+  <text x="86" y="1135" class="b">社員の方と所属部署の対応表</text>
+
+  <rect x="460" y="1060" width="380" height="88" rx="14" fill="#f1f5f9"/>
+  <text x="486" y="1091" class="t">💰 月々の費用　約6万円</text>
+  <text x="486" y="1115" class="b">AI 利用料 約4.5万円 ＋ サーバー代 約1.5万円</text>
+  <text x="486" y="1135" class="s">月6,000回のご利用を想定（ご予算 8万円以内）</text>
+
+  <text x="450" y="1174" class="s" text-anchor="middle">ご参考（使用サービス）：Vercel（プログラム）／ Supabase（保管・検索）／ Claude（要約）／ OpenAI（検索用の変換・ご確認中）</text>
+</svg>
