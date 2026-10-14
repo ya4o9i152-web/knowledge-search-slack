@@ -39,6 +39,7 @@ Next.js 16（App Router, Route Handlers, `after()`）／Vercel（Cron）／Supab
 | ドキュメント | 内容 |
 |---|---|
 | [提案書.md](./提案書.md)（[PDF](./提案書.pdf)） | A4・1枚の提案書 |
+| [Phase2提案書.md](./Phase2提案書.md)（[PDF](./Phase2提案書.pdf)） | 納品時の継続提案（PowerPoint対応＋提案書の下書き作成）。MVPの実績報告つき、A4・1枚 |
 | [ヒアリングシート.md](./ヒアリングシート.md)（[PDF](./ヒアリングシート.pdf)）／[ヒアリング回答.md](./ヒアリング回答.md) | ヒアリング項目16問と回答 |
 | [スコープ.md](./スコープ.md) | MVP / Phase 2 の切り分け、設計の決定、合格基準、実装で分かったこと |
 | [docs/architecture.png](./docs/architecture.png) | 構成図（技術版） |
